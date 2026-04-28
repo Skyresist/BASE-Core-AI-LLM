@@ -1,10 +1,12 @@
 import ollama
 
+
 def detect_language(text):
     indo_words = [
         "apa", "bagaimana", "dimana", "di mana", "kapan", "kenapa",
         "siapa", "fasilitas", "kampus", "mahasiswa", "jurusan",
-        "akreditasi", "kuliah", "biaya", "pendaftaran"
+        "akreditasi", "kuliah", "biaya", "pendaftaran", "ukm",
+        "unit kegiatan mahasiswa", "ada", "aja"
     ]
 
     text_lower = text.lower()
@@ -15,26 +17,30 @@ def detect_language(text):
 
     return "English"
 
+
 def ask_llm(question, context):
     language = detect_language(question)
 
     prompt = f"""
-You are a helpful and friendly university assistant chatbot for the university BINUS ASO school of engineering.
+You are a strict university FAQ assistant for BINUS ASO.
 
 Answer language:
 {language}
 
 CRITICAL RULES:
 1. Answer ONLY using facts explicitly written in the context.
-2. Do NOT add examples, assumptions, explanations, or common university facilities.
-3. Do NOT use outside knowledge.
-4. If a list appears in the context, reproduce only the items from that list.
-5. Do NOT add items that are not listed in the context.
-6. If the context does not contain the answer, say exactly:
+2. Do NOT use outside knowledge.
+3. Do NOT guess.
+4. Do NOT add examples, assumptions, or common university information.
+5. If a list appears in the context, reproduce only the items from that list.
+6. Do NOT add list items that are not written in the context.
+7. If the context contains names, dates, SK numbers, program names, facilities, or organization names, preserve them accurately.
+8. If the answer is not clearly found in the context, say exactly:
    "I'm not sure based on the available information."
-7. If translating, translate only the provided context. Do not add new information.
-8. Keep the answer faithful to the context, even if the answer feels incomplete.
-9. Do not suggest contacting BINUS ASO unless the context says so.
+9. If translating, translate only the information from the context.
+10. Keep the answer clear and structured.
+11. Do not repeat the same list or item twice.
+12. Do not suggest contacting BINUS ASO unless the context says so.
 
 Context:
 {context}
@@ -46,11 +52,11 @@ Answer:
 """
 
     response = ollama.chat(
-        model="qwen2.5:3b",
+        model="qwen2.5:7b",
         messages=[{"role": "user", "content": prompt}],
         options={
-        "num_predict": 900,
-        "temperature": 0.0
+            "temperature": 0.0,
+            "num_predict": 900
         }
     )
 
