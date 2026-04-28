@@ -23,6 +23,26 @@ def build_context(results):
         context += f"[Source: {r['source']} | Score: {r['score']:.2f}]\n{r['text']}\n\n"
     return context
 
+def expand_query(query):
+    q = query.lower()
+    expanded = query
+
+    if "ukm" in q:
+        expanded += " Unit Kegiatan Mahasiswa organisasi mahasiswa klub club komunitas D'BASE AeroBASE Himpunan Mahasiswa Kendo BASE CORE"
+
+    if "unit kegiatan mahasiswa" in q:
+        expanded += " UKM organisasi mahasiswa klub club D'BASE AeroBASE Himpunan Mahasiswa Kendo BASE CORE"
+
+    if "fasilitas" in q or "facilities" in q:
+        expanded += " fasilitas BINUS ASO laboratorium lab Expression Technique Lab Physics Lab 3D Printer Lab Monozukuri Lab Ergonomic Lab Computer Lab Library Canteen"
+
+    if "akreditasi" in q or "accreditation" in q:
+        expanded += " akreditasi Unggul BAN-PT SK Automotive and Robotics Engineering Product Design Engineering Business Engineering Computer Engineering Industrial Engineering"
+    
+    if "jurusan" in q or "major" in q:
+        expanded += "Automotive & Robotics Engineering Product Design Engineering Business Engineering"
+
+    return expanded
 
 def main():
     # Silent loading
@@ -56,7 +76,8 @@ def main():
         # Retrieval
         with open(os.devnull, "w") as devnull:
             with redirect_stdout(devnull), redirect_stderr(devnull):
-                results = retriever.retrieve(q)
+                query_for_retrieval = expand_query(q)
+                results = retriever.retrieve(query_for_retrieval)
 
         context = build_context(results)
 
@@ -66,7 +87,7 @@ def main():
 
         if DEBUG_RETRIEVAL:
             print("\n--- Retrieved Context Preview ---")
-            print(context[:2000])
+            print(context[:2500])
             print("---------------------------------\n")
 
         answer = ask_llm(q, context)
